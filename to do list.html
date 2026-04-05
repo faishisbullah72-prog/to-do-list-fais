@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>To Do List Pro Fais</title>
+
+<style>
+body{
+  margin:0;
+  font-family:Arial;
+  background:linear-gradient(135deg,#1e1e2f,#3a3a6a);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+  color:white;
+}
+
+.app{
+  background:rgba(255,255,255,0.1);
+  padding:25px;
+  border-radius:20px;
+  width:350px;
+  backdrop-filter:blur(15px);
+  box-shadow:0 10px 30px rgba(0,0,0,0.4);
+}
+
+h2{
+  text-align:center;
+}
+
+/* INPUT */
+.input-box{
+  display:flex;
+  gap:10px;
+  margin-top:15px;
+}
+
+input{
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  outline:none;
+}
+
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  cursor:pointer;
+  background:#1abc9c;
+  color:white;
+}
+
+button:hover{
+  background:#16a085;
+}
+
+/* FILTER */
+.filters{
+  display:flex;
+  justify-content:space-between;
+  margin-top:15px;
+}
+
+.filters button{
+  flex:1;
+  margin:2px;
+  background:#444;
+}
+
+.filters button.active{
+  background:#1abc9c;
+}
+
+/* LIST */
+ul{
+  list-style:none;
+  padding:0;
+  margin-top:15px;
+}
+
+li{
+  background:rgba(255,255,255,0.1);
+  padding:10px;
+  border-radius:10px;
+  margin-bottom:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  animation:fadeIn 0.3s;
+}
+
+li span{
+  cursor:pointer;
+}
+
+.done{
+  text-decoration:line-through;
+  opacity:0.6;
+}
+
+.delete{
+  background:red;
+  border:none;
+  padding:5px 8px;
+  border-radius:8px;
+}
+
+/* ANIMASI */
+@keyframes fadeIn{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+  <h2>🚀 To Do List Pro</h2>
+
+  <div class="input-box">
+    <input id="task" placeholder="Tambah tugas...">
+    <button onclick="addTask()">+</button>
+  </div>
+
+  <div class="filters">
+    <button onclick="filterTask('all')" class="active">All</button>
+    <button onclick="filterTask('done')">Done</button>
+    <button onclick="filterTask('pending')">Pending</button>
+  </div>
+
+  <ul id="list"></ul>
+</div>
+
+<script>
+let list = document.getElementById("list");
+let currentFilter = "all";
+
+// LOAD DATA
+window.onload = function(){
+  let data = localStorage.getItem("tasks");
+  if(data){
+    list.innerHTML = data;
+    attachEvents();
+  }
+}
+
+// SIMPAN
+function save(){
+  localStorage.setItem("tasks", list.innerHTML);
+}
+
+// TAMBAH
+function addTask(){
+  let task = document.getElementById("task");
+
+  if(task.value === ""){
+    alert("Isi tugas dulu!");
+    return;
+  }
+
+  let li = document.createElement("li");
+  li.innerHTML = `
+    <span>${task.value}</span>
+    <button class="delete">X</button>
+  `;
+
+  list.appendChild(li);
+  task.value = "";
+
+  attachEvents();
+  save();
+}
+
+// EVENT CLICK
+function attachEvents(){
+  document.querySelectorAll("li span").forEach(el=>{
+    el.onclick = function(){
+      this.classList.toggle("done");
+      save();
+    }
+  });
+
+  document.querySelectorAll(".delete").forEach(el=>{
+    el.onclick = function(){
+      this.parentElement.remove();
+      save();
+    }
+  });
+}
+
+// FILTER
+function filterTask(type){
+  currentFilter = type;
+
+  document.querySelectorAll(".filters button").forEach(btn=>{
+    btn.classList.remove("active");
+  });
+
+  event.target.classList.add("active");
+
+  document.querySelectorAll("li").forEach(li=>{
+    let isDone = li.querySelector("span").classList.contains("done");
+
+    if(type === "all"){
+      li.style.display = "flex";
+    }else if(type === "done"){
+      li.style.display = isDone ? "flex" : "none";
+    }else{
+      li.style.display = !isDone ? "flex" : "none";
+    }
+  });
+}
+
+// ENTER KEY
+document.getElementById("task").addEventListener("keypress", function(e){
+  if(e.key === "Enter"){
+    addTask();
+  }
+});
+</script>
+
+</body>
+</html>
